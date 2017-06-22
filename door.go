@@ -12,6 +12,7 @@ import (
 type Door struct {
 	router   *Router
 	upgrader websocket.Upgrader
+	conns    map[uint32]*websocket.Conn
 }
 
 // Router 路由.
@@ -43,6 +44,8 @@ func (door *Door) DELETE(path string, h HandlerFunc) {
 func (door *Door) WebsocketHandler(w http.ResponseWriter, r *http.Request) error {
 	conn, err := door.upgrader.Upgrade(w, r, nil)
 	goutils.CheckError(err)
+	num := goutils.UniqueUint32()
+	door.conns[num] = conn
 	for {
 		messageType, p, err := conn.ReadMessage()
 		if err != nil {
@@ -56,6 +59,8 @@ func (door *Door) WebsocketHandler(w http.ResponseWriter, r *http.Request) error
 			door.router.Find(MethodEnum(event.Method), event.Path)(Context{
 				conn: conn,
 				data: event.Data,
+				num:  num,
+				door: door,
 			})
 		}
 	}
@@ -65,6 +70,7 @@ func (door *Door) WebsocketHandler(w http.ResponseWriter, r *http.Request) error
 func New() *Door {
 	return &Door{
 		router: NewRouter(),
+		conns:  make(map[uint32]*websocket.Conn, 0),
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
