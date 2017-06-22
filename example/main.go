@@ -14,8 +14,8 @@ var chats []*chat.Chat
 func main() {
 	chats = make([]*chat.Chat, 0)
 	d := door.New()
+	d.OPEN(open)
 	d.GET("send", send)
-	d.GET("start", start)
 
 	e := echo.New()
 	e.GET("/", html)
@@ -40,7 +40,7 @@ func send(c door.Context) error {
 	return nil
 }
 
-func start(c door.Context) error {
+func open(c door.Context) error {
 	c.Revert(door.MethodEnum_PUT, "chat", &chat.Chats{
 		Chats: chats,
 	})

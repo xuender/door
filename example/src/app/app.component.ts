@@ -20,7 +20,6 @@ export class AppComponent {
 		console.log('...........')
 		this.ws = new $WebSocket('ws://localhost:8888/ws');
 		this.ws.onMessage((msg: MessageEvent) => {
-			console.log('onMessage', msg.data);
 			const reader = new FileReader();
 			reader.readAsArrayBuffer(msg.data);
 			reader.onload = function () {
