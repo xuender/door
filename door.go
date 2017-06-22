@@ -56,6 +56,16 @@ func (door *Door) WebsocketHandler(w http.ResponseWriter, r *http.Request) error
 	conn, err := door.upgrader.Upgrade(w, r, nil)
 	goutils.CheckError(err)
 	num := goutils.UniqueUint32()
+	defer func() {
+		log.Printf("关闭: %d", num)
+		door.router.Find(MethodEnum_CLOSE, "")(Context{
+			conn: conn,
+			num:  num,
+			door: door,
+		})
+		delete(door.conns, num)
+		conn.Close()
+	}()
 	door.conns[num] = conn
 	door.router.Find(MethodEnum_OPEN, "")(Context{
 		conn: conn,
