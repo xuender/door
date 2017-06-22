@@ -15,3 +15,21 @@ type Context struct {
 func (context *Context) Unmarshal(pb proto.Message) error {
 	return proto.Unmarshal(context.data, pb)
 }
+
+// Send 发送对象.
+func (context *Context) Send(method MethodEnum, path string, pb proto.Message) error {
+	pbBytes, pbErr := proto.Marshal(pb)
+	if pbErr != nil {
+		return pbErr
+	}
+	event := &Event{
+		Method: method,
+		Path:   path,
+		Data:   pbBytes,
+	}
+	eventBytes, eventErr := proto.Marshal(event)
+	if eventErr != nil {
+		return eventErr
+	}
+	return context.conn.WriteMessage(websocket.BinaryMessage, eventBytes)
+}
