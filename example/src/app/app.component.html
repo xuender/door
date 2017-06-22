@@ -1,0 +1,15 @@
+<div style="text-align:center">
+	<h1>聊天室</h1>
+	<li *ngFor="let c of chats">
+		<span class="badge">{{c.Nick}}</span> {{c.Context}}
+	</li>
+	<div>
+		<label>昵称: </label>
+		<input [(ngModel)]="nick" placeholder="昵称">
+	</div>
+	<div>
+		<label>内容: </label>
+		<input [(ngModel)]="context" placeholder="内容" id="context" (keydown)="key($event)">
+	</div>
+	<button (click)="send()">发送</button>
+</div>

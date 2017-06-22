@@ -20,6 +20,16 @@ func (door *Door) Router() *Router {
 	return door.router
 }
 
+// OPEN 设置开启功能.
+func (door *Door) OPEN(h HandlerFunc) {
+	door.router.Add(MethodEnum_OPEN, "", h)
+}
+
+// CLOSE 设置关闭功能.
+func (door *Door) CLOSE(h HandlerFunc) {
+	door.router.Add(MethodEnum_CLOSE, "", h)
+}
+
 // GET 设置获取功能.
 func (door *Door) GET(path string, h HandlerFunc) {
 	door.router.Add(MethodEnum_GET, path, h)
@@ -46,6 +56,11 @@ func (door *Door) WebsocketHandler(w http.ResponseWriter, r *http.Request) error
 	goutils.CheckError(err)
 	num := goutils.UniqueUint32()
 	door.conns[num] = conn
+	door.router.Find(MethodEnum_OPEN, "")(Context{
+		conn: conn,
+		num:  num,
+		door: door,
+	})
 	for {
 		messageType, p, err := conn.ReadMessage()
 		if err != nil {

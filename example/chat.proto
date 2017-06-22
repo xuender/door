@@ -1,0 +1,13 @@
+syntax = "proto3";
+package chat;
+
+message Chat {
+	string nick = 1;
+	string context = 2;
+	int64 timestamp = 3;
+}
+
+message Chats {
+	repeated Chat chats = 1;
+}
+
