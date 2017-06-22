@@ -1,6 +1,7 @@
 package door
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/golang/protobuf/proto"
@@ -71,6 +72,7 @@ func (door *Door) WebsocketHandler(w http.ResponseWriter, r *http.Request) error
 			if err = proto.Unmarshal(p, event); err != nil {
 				continue
 			}
+			log.Printf("event: %v\n", event)
 			door.router.Find(MethodEnum(event.Method), event.Path)(Context{
 				conn: conn,
 				data: event.Data,
