@@ -34,9 +34,11 @@ export namespace Event {
 }
 
 export enum MethodEnum {
-  GET = 0,
-  POST = 1,
-  PUT = 2,
-  DELETE = 3,
+  OPEN = 0,
+  CLOSE = 1,
+  GET = 2,
+  POST = 3,
+  PUT = 4,
+  DELETE = 5,
 }
 

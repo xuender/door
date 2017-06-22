@@ -40,17 +40,17 @@ func (context *Context) Numbers() (nums []uint32) {
 // Send 发送对象.
 func (context *Context) Send(num uint32, method MethodEnum, path string, pb proto.Message) error {
 	if conn, ok := context.door.conns[num]; ok {
-		return context.send(conn, method, path, pb)
+		return context.send(num, conn, method, path, pb)
 	}
 	return errors.New(fmt.Sprintf("错误的代号:%d", num))
 }
 
 // Revert 回复.
 func (context *Context) Revert(method MethodEnum, path string, pb proto.Message) error {
-	return context.send(context.conn, method, path, pb)
+	return context.send(context.num, context.conn, method, path, pb)
 }
 
-func (context *Context) send(conn *websocket.Conn, method MethodEnum, path string, pb proto.Message) error {
+func (context *Context) send(num uint32, conn *websocket.Conn, method MethodEnum, path string, pb proto.Message) error {
 	pbBytes, pbErr := proto.Marshal(pb)
 	if pbErr != nil {
 		return pbErr
@@ -64,5 +64,9 @@ func (context *Context) send(conn *websocket.Conn, method MethodEnum, path strin
 	if eventErr != nil {
 		return eventErr
 	}
-	return conn.WriteMessage(websocket.BinaryMessage, eventBytes)
+	err := conn.WriteMessage(websocket.BinaryMessage, eventBytes)
+	if err != nil {
+		context.door.Close(num)
+	}
+	return err
 }

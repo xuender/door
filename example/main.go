@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 	"time"
 
@@ -15,7 +16,8 @@ func main() {
 	chats = make([]*chat.Chat, 0)
 	d := door.New()
 	d.OPEN(open)
-	d.GET("send", send)
+	d.POST("send", send)
+	log.Println("启动")
 
 	e := echo.New()
 	e.GET("/", html)
@@ -30,9 +32,10 @@ func send(c door.Context) error {
 	ca := &chat.Chat{}
 	c.Unmarshal(ca)
 	ca.Timestamp = time.Now().UnixNano()
+	log.Printf("chat: %v\n", c)
 	chats = append(chats, ca)
 	if len(chats) > 20 {
-		chats = chats[1:20]
+		chats = chats[1:21]
 	}
 	for _, num := range c.Numbers() {
 		c.Send(num, door.MethodEnum_POST, "send", ca)
@@ -41,7 +44,7 @@ func send(c door.Context) error {
 }
 
 func open(c door.Context) error {
-	c.Revert(door.MethodEnum_PUT, "chat", &chat.Chats{
+	c.Revert(door.MethodEnum_PUT, "send", &chat.Chats{
 		Chats: chats,
 	})
 	ca := &chat.Chat{
@@ -49,7 +52,7 @@ func open(c door.Context) error {
 		Context:   "欢迎光临",
 		Timestamp: time.Now().UnixNano(),
 	}
-	c.Revert(door.MethodEnum_POST, "chat", ca)
+	c.Revert(door.MethodEnum_POST, "send", ca)
 	return nil
 }
 
