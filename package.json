@@ -1,7 +1,11 @@
 {
 	"name": "ws-door",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"description": "websocket router",
+	"main": "door.js",
+	"files": [
+		"event_pb.js"
+	],
 	"directories": {
 		"example": "example"
 	},
