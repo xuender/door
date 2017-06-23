@@ -1,10 +1,19 @@
-import { MethodEnum } from './event_pb';
+import * as jspb from "google-protobuf";
+import { Event, MethodEnum } from './event_pb';
 
 export class Context {
+	private bytes: Uint8Array;
+	constructor(bytes: Uint8Array) {
+		this.bytes = bytes;
+	}
 
+	toObject(pb: any): any {
+	  const m = pb.deserializeBinary(this.bytes);
+	  return m.toObject();
+	}
 }
 
-interface Router {
+export interface Router {
 	path: string;
 	handler(c: Context): void;
 }
@@ -55,4 +64,32 @@ export class Door {
 			handler: handler,
 		});
 	}
+	onMessage(msg: MessageEvent) {
+			console.log('onMessage');
+			readFile(msg.data).then((buffer) => {
+				const array = new Uint8Array(buffer);
+				const event = Event.deserializeBinary(array);
+				const routes = this.routes[event.getMethod()];
+				if (!routes) return;
+				for (let r of routes) {
+					if (r.path === event.getPath()){
+						r.handler(new Context(event.getData_asU8()));
+						return;
+					}
+				}
+			});
+		}
+}
+
+function readFile (blob: Blob): Promise<ArrayBuffer> {
+	return new Promise<ArrayBuffer>((resolve, reject) => {
+		const reader = new FileReader();
+		reader.onloadend = () => {
+			resolve(reader.result);
+		}
+		reader.onerror = (event) => {
+			reject(event.error);
+		}
+		reader.readAsArrayBuffer(blob);
+	});
 }
