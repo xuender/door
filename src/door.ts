@@ -1,4 +1,4 @@
-import * as jspb from "google-protobuf";
+import * as jspb from 'google-protobuf';
 import { Event, MethodEnum } from './event_pb';
 
 export class Context {
@@ -8,8 +8,8 @@ export class Context {
 	}
 
 	toObject(pb: any): any {
-	  const m = pb.deserializeBinary(this.bytes);
-	  return m.toObject();
+		const m = pb.deserializeBinary(this.bytes);
+		return m.toObject();
 	}
 }
 
@@ -48,7 +48,7 @@ export class Door {
 		this.add(MethodEnum.DELETE, path, handler);
 	}
 
-	add (method: MethodEnum, path: string, handler:(c: Context) => void) {
+	add(method: MethodEnum, path: string, handler: (c: Context) => void) {
 		let routes = this.routes[method];
 		if (!routes) {
 			routes = [];
@@ -66,23 +66,23 @@ export class Door {
 		});
 	}
 	onMessage(msg: MessageEvent) {
-			console.log('onMessage');
-			readFile(msg.data).then((buffer) => {
-				const array = new Uint8Array(buffer);
-				const event = Event.deserializeBinary(array).toObject();
-				const routes = this.routes[event.method];
-				if (!routes) return;
-				for (let r of routes) {
-					if (r.path === event.path){
-						r.handler(new Context(event.data as Uint8Array));
-						return;
-					}
+		console.log('onMessage');
+		readFile(msg.data).then((buffer) => {
+			const array = new Uint8Array(buffer);
+			const event = Event.deserializeBinary(array).toObject();
+			const routes = this.routes[event.method];
+			if (!routes) return;
+			for (let r of routes) {
+				if (r.path === event.path) {
+					r.handler(new Context(event.data as Uint8Array));
+					return;
 				}
-			});
-		}
+			}
+		});
+	}
 }
 
-function readFile (blob: Blob): Promise<ArrayBuffer> {
+function readFile(blob: Blob): Promise<ArrayBuffer> {
 	return new Promise<ArrayBuffer>((resolve, reject) => {
 		const reader = new FileReader();
 		reader.onloadend = () => {

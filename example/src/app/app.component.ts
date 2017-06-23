@@ -29,7 +29,7 @@ export class AppComponent {
 		this.door.POST('send', (c: Context) => {
 			this.chats.push(c.toObject(Chat));
 		});
-		this.ws.onMessage((m: MessageEvent) => this.door.onMessage(m), {autoApply: false});
+		this.ws.onMessage((m: MessageEvent) => this.door.onMessage(m), { autoApply: false });
 	}
 
 	send() {
@@ -52,7 +52,7 @@ export class AppComponent {
 	}
 }
 
-function readFile (blob: Blob): Promise<ArrayBuffer> {
+function readFile(blob: Blob): Promise<ArrayBuffer> {
 	return new Promise<ArrayBuffer>((resolve, reject) => {
 		const reader = new FileReader();
 		reader.onloadend = () => {
