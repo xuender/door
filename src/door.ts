@@ -52,6 +52,7 @@ export class Door {
 		let routes = this.routes[method];
 		if (!routes) {
 			routes = [];
+			this.routes[method] = routes;
 		}
 		for (let r of routes) {
 			if (r.path === path) {

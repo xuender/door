@@ -38,6 +38,7 @@ var Door = (function () {
         var routes = this.routes[method];
         if (!routes) {
             routes = [];
+            this.routes[method] = routes;
         }
         for (var _i = 0, routes_1 = routes; _i < routes_1.length; _i++) {
             var r = routes_1[_i];
