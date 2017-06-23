@@ -26,7 +26,7 @@ export class AppComponent {
 		this.door.POST('send', (c: Context) => {
 			this.chats.push(c.toObject());
 		});
-		this.ws.onMessage(this.door.onMessage, {autoApply: false});
+		this.ws.onMessage((m: MessageEvent) => this.door.onMessage(m), {autoApply: false});
 	}
 
 	send() {

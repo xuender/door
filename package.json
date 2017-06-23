@@ -1,8 +1,7 @@
 {
 	"name": "ws-door",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "websocket router",
-	"main": "door.js",
 	"directories": {
 		"example": "example"
 	},
