@@ -15,16 +15,16 @@ export class AppComponent {
 	private ws: $WebSocket;
 	private door: Door;
 	constructor() {
-		this.nick = '路人';
+		this.nick = '';
 		this.context = '';
 		this.chats = [];
 		this.ws = new $WebSocket('ws://localhost:8888/ws');
 		this.door = new Door(this.ws);
 		this.door.putBind('send', (c: Context) => {
-			this.chats = c.toObject(Chats).chatsList;
+			this.chats = c.toObject(Chats).chatsList.reverse();
 		});
 		this.door.postBind('send', (c: Context) => {
-			this.chats.push(c.toObject(Chat));
+			this.chats.unshift(c.toObject(Chat));
 		});
 		this.ws.onMessage((m: MessageEvent) => this.door.onMessage(m), { autoApply: false });
 	}
@@ -35,6 +35,13 @@ export class AppComponent {
 		c.setContext(this.context);
 		this.ws.send(this.door.postBinary('send', c), WebSocketSendMode.Direct, true);
 		this.context = '';
+	}
+
+	setNick(nick: string) {
+		this.nick = nick;
+		const c = new Chat();
+		c.setNick(nick);
+		this.ws.send(this.door.putBinary('nick', c), WebSocketSendMode.Direct, true);
 	}
 
 	key(event: any) {

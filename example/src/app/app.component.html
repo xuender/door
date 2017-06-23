@@ -1,15 +1,23 @@
-<div style="text-align:center">
+<div class="chat">
 	<h1>聊天室</h1>
-	<li *ngFor="let c of chats">
-		<span class="badge">{{c.nick}}</span> {{c.context}}
-	</li>
-	<div>
-		<label>昵称: </label>
-		<input [(ngModel)]="nick" placeholder="昵称">
+	<div class="list">
+		<div *ngFor="let c of chats">
+			<small> {{ c.timestamp / 1000000 | date: 'yyyy-MM-dd HH:mm:ss'}} </small>
+			<span class="nick">{{ c.nick }}:</span>
+			<pre> {{ c.context }} </pre>
+		</div>
 	</div>
-	<div>
-		<label>内容: </label>
-		<input [(ngModel)]="context" placeholder="内容" id="context" (keydown)="key($event)">
-	</div>
-	<button (click)="send()">发送</button>
+	<form (ngSubmit)="send()" #chatForm="ngForm">
+		<div>
+			<label>昵称: </label>
+			<input  *ngIf="!nick" [(ngModel)]="newNick" placeholder="昵称" name="newNick" required>
+			<input  *ngIf="nick" [ngModel]="nick" placeholder="昵称" name="nick" disabled>
+		</div>
+		<button type="button" *ngIf="!nick" (click)="setNick(newNick)">确定昵称</button>
+		<div *ngIf="nick">
+			<label>内容: </label>
+			<input [(ngModel)]="context" placeholder="内容" name="context" required>
+		</div>
+		<button *ngIf="nick" type="submit" [disabled]="!chatForm.form.valid">发送</button>
+	</form>
 </div>

@@ -1,0 +1,22 @@
+.chat{
+	width: 80%;
+	margin: 0 auto;
+}
+.chat h1 {
+	text-align: center;
+}
+.list {
+	height: 560px;
+	overflow: auto;
+}
+.list pre {
+	display: inline-block;
+	margin: 0;
+}
+.nick {
+	font-size: 1.2em;
+	width: 80px;
+	display: inline-block;
+	text-align: right;
+	padding: 0 10px;
+}

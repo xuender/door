@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -16,6 +17,7 @@ func main() {
 	d := door.New()
 	d.OPEN(open)
 	d.POST("send", send)
+	d.PUT("nick", nick)
 
 	e := echo.New()
 	e.GET("/", html)
@@ -40,13 +42,29 @@ func send(c door.Context) error {
 	return nil
 }
 
+func nick(c door.Context) error {
+	ca := &chat.Chat{}
+	c.Unmarshal(ca)
+	ca.Timestamp = time.Now().UnixNano()
+	ca.Context = fmt.Sprintf("欢迎 [ %s ] 进入聊天室！", ca.Nick)
+	ca.Nick = "机器人"
+	chats = append(chats, ca)
+	if len(chats) > 20 {
+		chats = chats[1:21]
+	}
+	for _, num := range c.Numbers() {
+		c.Send(num, door.MethodEnum_POST, "send", ca)
+	}
+	return nil
+}
+
 func open(c door.Context) error {
 	c.Revert(door.MethodEnum_PUT, "send", &chat.Chats{
 		Chats: chats,
 	})
 	ca := &chat.Chat{
 		Nick:      "机器人",
-		Context:   "欢迎光临",
+		Context:   "你进入了一个聊天室",
 		Timestamp: time.Now().UnixNano(),
 	}
 	c.Revert(door.MethodEnum_POST, "send", ca)
@@ -54,17 +72,16 @@ func open(c door.Context) error {
 }
 
 func html(c echo.Context) error {
-	return c.HTML(http.StatusOK, `<html><body><script>
-		var s = new WebSocket('ws://localhost:8888/ws');
-		s.onopen = function(event) {
-			// s.send('I am the client and I\'m listening!');
-			s.onmessage = function(event) {
-				console.log('Client received a message',event);
-			};
-			// 监听Socket的关闭
-			s.onclose = function(event) {
-				console.log('Client notified socket has closed',event);
-			};
-		};
-		</script></body></html>`)
+	return c.HTML(http.StatusOK, `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>聊天室</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="static/styles.d41d8cd98f00b204e980.bundle.css" rel="stylesheet"/></head>
+<body>
+  <app-root></app-root>
+<script type="text/javascript" src="static/inline.893a24a4fa5604695bc9.bundle.js"></script><script type="text/javascript" src="static/polyfills.5ca19fb28cd74641de8d.bundle.js"></script><script type="text/javascript" src="static/vendor.75eee41300e46be93317.bundle.js"></script><script type="text/javascript" src="static/main.d06763307dcbc3a1afa5.bundle.js"></script></body>
+</html>`)
 }
