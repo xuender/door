@@ -1,7 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { $WebSocket, WebSocketSendMode } from 'angular2-websocket/angular2-websocket'
 import { Chat, Chats } from './chat_pb';
-import { Door, Event, MethodEnum, Context } from 'ws-door';
+import { Door, Context } from 'ws-door';
+import { Event, MethodEnum } from 'ws-door/event_pb';
 
 @Component({
 	selector: 'app-root',
@@ -15,6 +16,8 @@ export class AppComponent {
 	private ws: $WebSocket;
 	private door: Door;
 	constructor() {
+		console.log('event', Event);
+		console.log('Door', Door);
 		this.nick = '路人';
 		this.context = '';
 		this.chats = [];

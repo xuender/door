@@ -68,12 +68,12 @@ export class Door {
 			console.log('onMessage');
 			readFile(msg.data).then((buffer) => {
 				const array = new Uint8Array(buffer);
-				const event = Event.deserializeBinary(array);
-				const routes = this.routes[event.getMethod()];
+				const event = Event.deserializeBinary(array).toObject();
+				const routes = this.routes[event.method];
 				if (!routes) return;
 				for (let r of routes) {
-					if (r.path === event.getPath()){
-						r.handler(new Context(event.getData_asU8()));
+					if (r.path === event.path){
+						r.handler(new Context(event.data as Uint8Array));
 						return;
 					}
 				}

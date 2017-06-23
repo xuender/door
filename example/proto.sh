@@ -12,5 +12,4 @@ protoc \
 -I .. \
 ../*.proto
 
-
 protoc --go_out=./chat -I . ./*.proto

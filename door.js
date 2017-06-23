@@ -56,14 +56,14 @@ var Door = (function () {
         console.log('onMessage');
         readFile(msg.data).then(function (buffer) {
             var array = new Uint8Array(buffer);
-            var event = event_pb_1.Event.deserializeBinary(array);
-            var routes = _this.routes[event.getMethod()];
+            var event = event_pb_1.Event.deserializeBinary(array).toObject();
+            var routes = _this.routes[event.method];
             if (!routes)
                 return;
             for (var _i = 0, routes_2 = routes; _i < routes_2.length; _i++) {
                 var r = routes_2[_i];
-                if (r.path === event.getPath()) {
-                    r.handler(new Context(event.getData_asU8()));
+                if (r.path === event.path) {
+                    r.handler(new Context(event.data));
                     return;
                 }
             }
