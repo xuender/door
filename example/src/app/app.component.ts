@@ -24,10 +24,10 @@ export class AppComponent {
 		this.ws = new $WebSocket('ws://localhost:8888/ws');
 		this.door = new Door();
 		this.door.PUT('send', (c: Context) => {
-			this.chats = c.toObject().chatsList;
+			this.chats = c.toObject(Chats).chatsList;
 		});
 		this.door.POST('send', (c: Context) => {
-			this.chats.push(c.toObject());
+			this.chats.push(c.toObject(Chat));
 		});
 		this.ws.onMessage((m: MessageEvent) => this.door.onMessage(m), {autoApply: false});
 	}
