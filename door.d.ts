@@ -1,4 +1,4 @@
-import { MethodEnum } from './event_pb';
+import * as jspb from 'google-protobuf';
 export declare class Context {
     private bytes;
     constructor(bytes: Uint8Array);
@@ -9,14 +9,21 @@ export interface Router {
     handler(c: Context): void;
 }
 export declare class Door {
-    routes: Router[][];
+    private routes;
     constructor();
-    OPEN(path: string, handler: (c: Context) => void): void;
-    CLOSE(path: string, handler: (c: Context) => void): void;
-    GET(path: string, handler: (c: Context) => void): void;
-    POST(path: string, handler: (c: Context) => void): void;
-    PUT(path: string, handler: (c: Context) => void): void;
-    DELETE(path: string, handler: (c: Context) => void): void;
-    add(method: MethodEnum, path: string, handler: (c: Context) => void): void;
+    openBind(path: string, handler: (c: Context) => void): void;
+    closeBind(path: string, handler: (c: Context) => void): void;
+    getBind(path: string, handler: (c: Context) => void): void;
+    putBind(path: string, handler: (c: Context) => void): void;
+    postBind(path: string, handler: (c: Context) => void): void;
+    deleteBind(path: string, handler: (c: Context) => void): void;
+    private add(method, path, handler);
     onMessage(msg: MessageEvent): void;
+    private serializeBinary(method, path, pb);
+    openBinary(path: string, pb: jspb.Message): Uint8Array;
+    closeBinary(path: string, pb: jspb.Message): Uint8Array;
+    getBinary(path: string, pb: jspb.Message): Uint8Array;
+    putBinary(path: string, pb: jspb.Message): Uint8Array;
+    postBinary(path: string, pb: jspb.Message): Uint8Array;
+    deleteBinary(path: string, pb: jspb.Message): Uint8Array;
 }

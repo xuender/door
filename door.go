@@ -1,7 +1,6 @@
 package door
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/golang/protobuf/proto"
@@ -9,16 +8,11 @@ import (
 	"github.com/xuender/goutils"
 )
 
-// Door golang 的 websocket 交互工具.
+// Door is golang websocket router.
 type Door struct {
 	router   *Router
 	upgrader websocket.Upgrader
 	conns    map[uint32]*websocket.Conn
-}
-
-// Router 路由.
-func (door *Door) Router() *Router {
-	return door.router
 }
 
 // OPEN 设置开启功能.
@@ -51,7 +45,7 @@ func (door *Door) DELETE(path string, h HandlerFunc) {
 	door.router.Add(MethodEnum_DELETE, path, h)
 }
 
-// WebsocketHandler Websocket 回调.
+// WebsocketHandler Websocket handler.
 func (door *Door) WebsocketHandler(w http.ResponseWriter, r *http.Request) error {
 	conn, err := door.upgrader.Upgrade(w, r, nil)
 	goutils.CheckError(err)
@@ -73,7 +67,6 @@ func (door *Door) WebsocketHandler(w http.ResponseWriter, r *http.Request) error
 			if err = proto.Unmarshal(p, event); err != nil {
 				continue
 			}
-			log.Printf("event: %v\n", event)
 			door.router.Find(MethodEnum(event.Method), event.Path)(Context{
 				conn: conn,
 				data: event.Data,
@@ -84,10 +77,9 @@ func (door *Door) WebsocketHandler(w http.ResponseWriter, r *http.Request) error
 	}
 }
 
-// Close 关闭链接.
+// Close connect by num.
 func (door *Door) Close(num uint32) {
 	if _, ok := door.conns[num]; ok {
-		log.Printf("关闭: %d", num)
 		conn := door.conns[num]
 		door.router.Find(MethodEnum_CLOSE, "")(Context{
 			conn: conn,
@@ -99,7 +91,7 @@ func (door *Door) Close(num uint32) {
 	}
 }
 
-// New 新建Door.
+// New Door.
 func New() *Door {
 	return &Door{
 		router: NewRouter(),

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"net/http"
 	"time"
 
@@ -17,7 +16,6 @@ func main() {
 	d := door.New()
 	d.OPEN(open)
 	d.POST("send", send)
-	log.Println("启动")
 
 	e := echo.New()
 	e.GET("/", html)
@@ -32,7 +30,6 @@ func send(c door.Context) error {
 	ca := &chat.Chat{}
 	c.Unmarshal(ca)
 	ca.Timestamp = time.Now().UnixNano()
-	log.Printf("chat: %v\n", c)
 	chats = append(chats, ca)
 	if len(chats) > 20 {
 		chats = chats[1:21]

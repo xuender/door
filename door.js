@@ -16,22 +16,22 @@ var Door = (function () {
     function Door() {
         this.routes = [];
     }
-    Door.prototype.OPEN = function (path, handler) {
+    Door.prototype.openBind = function (path, handler) {
         this.add(event_pb_1.MethodEnum.OPEN, path, handler);
     };
-    Door.prototype.CLOSE = function (path, handler) {
+    Door.prototype.closeBind = function (path, handler) {
         this.add(event_pb_1.MethodEnum.CLOSE, path, handler);
     };
-    Door.prototype.GET = function (path, handler) {
+    Door.prototype.getBind = function (path, handler) {
         this.add(event_pb_1.MethodEnum.GET, path, handler);
     };
-    Door.prototype.POST = function (path, handler) {
-        this.add(event_pb_1.MethodEnum.POST, path, handler);
-    };
-    Door.prototype.PUT = function (path, handler) {
+    Door.prototype.putBind = function (path, handler) {
         this.add(event_pb_1.MethodEnum.PUT, path, handler);
     };
-    Door.prototype.DELETE = function (path, handler) {
+    Door.prototype.postBind = function (path, handler) {
+        this.add(event_pb_1.MethodEnum.POST, path, handler);
+    };
+    Door.prototype.deleteBind = function (path, handler) {
         this.add(event_pb_1.MethodEnum.DELETE, path, handler);
     };
     Door.prototype.add = function (method, path, handler) {
@@ -69,6 +69,31 @@ var Door = (function () {
                 }
             }
         });
+    };
+    Door.prototype.serializeBinary = function (method, path, pb) {
+        var e = new event_pb_1.Event();
+        e.setMethod(method);
+        e.setPath(path);
+        e.setData(pb.serializeBinary());
+        return e.serializeBinary();
+    };
+    Door.prototype.openBinary = function (path, pb) {
+        return this.serializeBinary(event_pb_1.MethodEnum.OPEN, path, pb);
+    };
+    Door.prototype.closeBinary = function (path, pb) {
+        return this.serializeBinary(event_pb_1.MethodEnum.CLOSE, path, pb);
+    };
+    Door.prototype.getBinary = function (path, pb) {
+        return this.serializeBinary(event_pb_1.MethodEnum.GET, path, pb);
+    };
+    Door.prototype.putBinary = function (path, pb) {
+        return this.serializeBinary(event_pb_1.MethodEnum.PUT, path, pb);
+    };
+    Door.prototype.postBinary = function (path, pb) {
+        return this.serializeBinary(event_pb_1.MethodEnum.POST, path, pb);
+    };
+    Door.prototype.deleteBinary = function (path, pb) {
+        return this.serializeBinary(event_pb_1.MethodEnum.DELETE, path, pb);
     };
     return Door;
 }());

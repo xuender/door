@@ -3,6 +3,7 @@ import { Event, MethodEnum } from './event_pb';
 
 export class Context {
 	private bytes: Uint8Array;
+
 	constructor(bytes: Uint8Array) {
 		this.bytes = bytes;
 	}
@@ -19,36 +20,37 @@ export interface Router {
 }
 
 export class Door {
-	routes: Router[][];
+	private routes: Router[][];
+
 	constructor() {
 		this.routes = [];
 	}
 
-	OPEN(path: string, handler: (c: Context) => void) {
+	openBind(path: string, handler: (c: Context) => void) {
 		this.add(MethodEnum.OPEN, path, handler);
 	}
 
-	CLOSE(path: string, handler: (c: Context) => void) {
+	closeBind(path: string, handler: (c: Context) => void) {
 		this.add(MethodEnum.CLOSE, path, handler);
 	}
 
-	GET(path: string, handler: (c: Context) => void) {
+	getBind(path: string, handler: (c: Context) => void) {
 		this.add(MethodEnum.GET, path, handler);
 	}
 
-	POST(path: string, handler: (c: Context) => void) {
-		this.add(MethodEnum.POST, path, handler);
-	}
-
-	PUT(path: string, handler: (c: Context) => void) {
+	putBind(path: string, handler: (c: Context) => void) {
 		this.add(MethodEnum.PUT, path, handler);
 	}
 
-	DELETE(path: string, handler: (c: Context) => void) {
+	postBind(path: string, handler: (c: Context) => void) {
+		this.add(MethodEnum.POST, path, handler);
+	}
+
+	deleteBind(path: string, handler: (c: Context) => void) {
 		this.add(MethodEnum.DELETE, path, handler);
 	}
 
-	add(method: MethodEnum, path: string, handler: (c: Context) => void) {
+	private add(method: MethodEnum, path: string, handler: (c: Context) => void) {
 		let routes = this.routes[method];
 		if (!routes) {
 			routes = [];
@@ -65,6 +67,7 @@ export class Door {
 			handler: handler,
 		});
 	}
+
 	onMessage(msg: MessageEvent) {
 		console.log('onMessage');
 		readFile(msg.data).then((buffer) => {
@@ -79,6 +82,38 @@ export class Door {
 				}
 			}
 		});
+	}
+
+	private serializeBinary(method: MethodEnum, path: string, pb: jspb.Message): Uint8Array{
+		const e = new Event();
+		e.setMethod(method);
+		e.setPath(path);
+		e.setData(pb.serializeBinary());
+		return e.serializeBinary()
+	}
+
+	openBinary(path: string, pb: jspb.Message): Uint8Array {
+		return this.serializeBinary(MethodEnum.OPEN, path, pb)
+	}
+
+	closeBinary(path: string, pb: jspb.Message): Uint8Array {
+		return this.serializeBinary(MethodEnum.CLOSE, path, pb)
+	}
+
+	getBinary(path: string, pb: jspb.Message): Uint8Array {
+		return this.serializeBinary(MethodEnum.GET, path, pb)
+	}
+
+	putBinary(path: string, pb: jspb.Message): Uint8Array {
+		return this.serializeBinary(MethodEnum.PUT, path, pb)
+	}
+
+	postBinary(path: string, pb: jspb.Message): Uint8Array {
+		return this.serializeBinary(MethodEnum.POST, path, pb)
+	}
+
+	deleteBinary(path: string, pb: jspb.Message): Uint8Array {
+		return this.serializeBinary(MethodEnum.DELETE, path, pb)
 	}
 }
 

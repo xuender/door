@@ -2,7 +2,6 @@ import { Component, Input } from '@angular/core';
 import { $WebSocket, WebSocketSendMode } from 'angular2-websocket/angular2-websocket'
 import { Chat, Chats } from './chat_pb';
 import { Door, Context } from 'ws-door';
-import { Event, MethodEnum } from 'ws-door/event_pb';
 
 @Component({
 	selector: 'app-root',
@@ -16,32 +15,25 @@ export class AppComponent {
 	private ws: $WebSocket;
 	private door: Door;
 	constructor() {
-		console.log('event', Event);
-		console.log('Door', Door);
 		this.nick = '路人';
 		this.context = '';
 		this.chats = [];
 		this.ws = new $WebSocket('ws://localhost:8888/ws');
-		this.door = new Door();
-		this.door.PUT('send', (c: Context) => {
+		this.door = new Door(this.ws);
+		this.door.putBind('send', (c: Context) => {
 			this.chats = c.toObject(Chats).chatsList;
 		});
-		this.door.POST('send', (c: Context) => {
+		this.door.postBind('send', (c: Context) => {
 			this.chats.push(c.toObject(Chat));
 		});
 		this.ws.onMessage((m: MessageEvent) => this.door.onMessage(m), { autoApply: false });
 	}
 
 	send() {
-		console.log('text', this.context);
 		const c = new Chat();
 		c.setNick(this.nick);
 		c.setContext(this.context);
-		const e = new Event();
-		e.setMethod(MethodEnum.POST);
-		e.setPath('send');
-		e.setData(c.serializeBinary());
-		this.ws.send(e.serializeBinary(), WebSocketSendMode.Direct, true);
+		this.ws.send(this.door.postBinary('send', c), WebSocketSendMode.Direct, true);
 		this.context = '';
 	}
 
