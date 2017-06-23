@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { $WebSocket, WebSocketSendMode } from 'angular2-websocket/angular2-websocket'
 import { Chat, Chats } from './chat_pb';
-import { Event, MethodEnum } from './event_pb';
+import { Door, Event, MethodEnum, Context } from 'ws-door';
 
 @Component({
 	selector: 'app-root',
@@ -13,27 +13,20 @@ export class AppComponent {
 	@Input() context: string;
 	@Input() chats: Chat.AsObject[];
 	private ws: $WebSocket;
+	private door: Door;
 	constructor() {
 		this.nick = '路人';
 		this.context = '';
 		this.chats = [];
 		this.ws = new $WebSocket('ws://localhost:8888/ws');
-		this.ws.onMessage((msg: MessageEvent) => {
-			console.log('onMessage');
-			readFile(msg.data).then((buffer) => {
-				const array = new Uint8Array(buffer);
-				const pb = Event.deserializeBinary(array);
-				if (pb.getMethod() === MethodEnum.PUT) {
-					const cs = Chats.deserializeBinary(pb.getData_asU8());
-					this.chats = cs.toObject().chatsList;
-				}
-				if (pb.getMethod() === MethodEnum.POST) {
-					const c = Chat.deserializeBinary(pb.getData_asU8());
-					this.chats.push(c.toObject());
-				}
-				console.log('chats length', this.chats);
-			});
-		}, {autoApply: false});
+		this.door = new Door();
+		this.door.PUT('send', (c: Context) => {
+			this.chats = c.toObject().chatsList;
+		});
+		this.door.POST('send', (c: Context) => {
+			this.chats.push(c.toObject());
+		});
+		this.ws.onMessage(this.door.onMessage, {autoApply: false});
 	}
 
 	send() {
