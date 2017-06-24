@@ -29,6 +29,17 @@ func (router *Router) Find(method MethodEnum, paths ...string) HandlerFunc {
 	return NotFoundHandler
 }
 
+// Finds 路由全部查找.
+func (router *Router) Finds(method MethodEnum) []HandlerFunc {
+	ret := make([]HandlerFunc, 0)
+	if pathMap, methodOk := router.routes[method]; methodOk {
+		for _, hf := range pathMap {
+			ret = append(ret, hf)
+		}
+	}
+	return ret
+}
+
 // NewRouter 新建路由器.
 func NewRouter() *Router {
 	return &Router{

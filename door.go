@@ -16,13 +16,13 @@ type Door struct {
 }
 
 // OPEN 设置开启功能.
-func (door *Door) OPEN(h HandlerFunc) {
-	door.router.Add(h, MethodEnum_OPEN)
+func (door *Door) OPEN(h HandlerFunc, paths ...string) {
+	door.router.Add(h, MethodEnum_OPEN, paths...)
 }
 
 // CLOSE 设置关闭功能.
-func (door *Door) CLOSE(h HandlerFunc) {
-	door.router.Add(h, MethodEnum_CLOSE)
+func (door *Door) CLOSE(h HandlerFunc, paths ...string) {
+	door.router.Add(h, MethodEnum_CLOSE, paths...)
 }
 
 // GET 设置获取功能.
@@ -52,11 +52,13 @@ func (door *Door) WebsocketHandler(w http.ResponseWriter, r *http.Request) error
 	num := goutils.UniqueUint32()
 	defer door.Close(num)
 	door.conns[num] = conn
-	door.router.Find(MethodEnum_OPEN, "")(Context{
-		conn: conn,
-		num:  num,
-		door: door,
-	})
+	for _, handlerFunc := range door.router.Finds(MethodEnum_OPEN) {
+		handlerFunc(Context{
+			conn: conn,
+			num:  num,
+			door: door,
+		})
+	}
 	for {
 		messageType, p, err := conn.ReadMessage()
 		if err != nil {
@@ -81,11 +83,13 @@ func (door *Door) WebsocketHandler(w http.ResponseWriter, r *http.Request) error
 func (door *Door) Close(num uint32) {
 	if _, ok := door.conns[num]; ok {
 		conn := door.conns[num]
-		door.router.Find(MethodEnum_CLOSE, "")(Context{
-			conn: conn,
-			num:  num,
-			door: door,
-		})
+		for _, handlerFunc := range door.router.Finds(MethodEnum_CLOSE) {
+			handlerFunc(Context{
+				conn: conn,
+				num:  num,
+				door: door,
+			})
+		}
 		delete(door.conns, num)
 		if conn != nil {
 			conn.Close()
