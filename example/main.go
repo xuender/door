@@ -37,7 +37,7 @@ func send(c door.Context) error {
 		chats = chats[1:21]
 	}
 	for _, num := range c.Numbers() {
-		c.Send(num, door.MethodEnum_POST, "send", ca)
+		c.Send(num, ca, door.MethodEnum_POST, "send")
 	}
 	return nil
 }
@@ -53,21 +53,21 @@ func nick(c door.Context) error {
 		chats = chats[1:21]
 	}
 	for _, num := range c.Numbers() {
-		c.Send(num, door.MethodEnum_POST, "send", ca)
+		c.Send(num, ca, door.MethodEnum_POST, "send")
 	}
 	return nil
 }
 
 func open(c door.Context) error {
-	c.Revert(door.MethodEnum_PUT, "send", &chat.Chats{
+	c.Revert(&chat.Chats{
 		Chats: chats,
-	})
+	}, door.MethodEnum_PUT, "send")
 	ca := &chat.Chat{
 		Nick:      "机器人",
 		Context:   "你进入了一个聊天室",
 		Timestamp: time.Now().UnixNano(),
 	}
-	c.Revert(door.MethodEnum_POST, "send", ca)
+	c.Revert(ca, door.MethodEnum_POST, "send")
 	return nil
 }
 

@@ -1,6 +1,8 @@
 package door
 
 import (
+	"strings"
+
 	"github.com/golang/protobuf/proto"
 	"github.com/gorilla/websocket"
 )
@@ -35,26 +37,26 @@ func (context *Context) Numbers() (nums []uint32) {
 }
 
 // Send 发送对象.
-func (context *Context) Send(num uint32, method MethodEnum, path string, pb proto.Message) error {
+func (context *Context) Send(num uint32, pb proto.Message, method MethodEnum, path ...string) error {
 	if conn, ok := context.door.conns[num]; ok {
-		return context.send(num, conn, method, path, pb)
+		return context.send(num, conn, pb, method, path...)
 	}
 	return ErrorNotNum{Num: num}
 }
 
 // Revert 回复.
-func (context *Context) Revert(method MethodEnum, path string, pb proto.Message) error {
-	return context.send(context.num, context.conn, method, path, pb)
+func (context *Context) Revert(pb proto.Message, method MethodEnum, path ...string) error {
+	return context.send(context.num, context.conn, pb, method, path...)
 }
 
-func (context *Context) send(num uint32, conn *websocket.Conn, method MethodEnum, path string, pb proto.Message) error {
+func (context *Context) send(num uint32, conn *websocket.Conn, pb proto.Message, method MethodEnum, path ...string) error {
 	pbBytes, pbErr := proto.Marshal(pb)
 	if pbErr != nil {
 		return pbErr
 	}
 	event := &Event{
 		Method: method,
-		Path:   path,
+		Path:   strings.Join(path, "/"),
 		Data:   pbBytes,
 	}
 	eventBytes, eventErr := proto.Marshal(event)
