@@ -50,14 +50,16 @@ func (context *Context) Revert(pb proto.Message, method MethodEnum, path ...stri
 }
 
 func (context *Context) send(num uint32, conn *websocket.Conn, pb proto.Message, method MethodEnum, path ...string) error {
-	pbBytes, pbErr := proto.Marshal(pb)
-	if pbErr != nil {
-		return pbErr
-	}
 	event := &Event{
 		Method: method,
 		Path:   strings.Join(path, "/"),
-		Data:   pbBytes,
+	}
+	if pb != nil {
+		pbBytes, pbErr := proto.Marshal(pb)
+		if pbErr != nil {
+			return pbErr
+		}
+		event.Data = pbBytes
 	}
 	eventBytes, eventErr := proto.Marshal(event)
 	if eventErr != nil {
