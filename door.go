@@ -87,7 +87,9 @@ func (door *Door) Close(num uint32) {
 			door: door,
 		})
 		delete(door.conns, num)
-		conn.Close()
+		if conn != nil {
+			conn.Close()
+		}
 	}
 }
 

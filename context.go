@@ -1,9 +1,6 @@
 package door
 
 import (
-	"errors"
-	fmt "fmt"
-
 	"github.com/golang/protobuf/proto"
 	"github.com/gorilla/websocket"
 )
@@ -42,7 +39,7 @@ func (context *Context) Send(num uint32, method MethodEnum, path string, pb prot
 	if conn, ok := context.door.conns[num]; ok {
 		return context.send(num, conn, method, path, pb)
 	}
-	return errors.New(fmt.Sprintf("错误的代号:%d", num))
+	return ErrorNotNum{Num: num}
 }
 
 // Revert 回复.

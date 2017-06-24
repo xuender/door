@@ -69,7 +69,6 @@ export class Door {
 	}
 
 	onMessage(msg: MessageEvent) {
-		console.log('onMessage');
 		readFile(msg.data).then((buffer) => {
 			const array = new Uint8Array(buffer);
 			const event = Event.deserializeBinary(array).toObject();
