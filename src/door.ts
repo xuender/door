@@ -88,7 +88,9 @@ export class Door {
 		const e = new Event();
 		e.setMethod(method);
 		e.setPath(paths.join('/'));
-		e.setData(pb.serializeBinary());
+		if (pb) {
+			e.setData(pb.serializeBinary());
+		}
 		return e.serializeBinary()
 	}
 
