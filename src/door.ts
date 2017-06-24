@@ -26,31 +26,32 @@ export class Door {
 		this.routes = [];
 	}
 
-	openBind(path: string, handler: (c: Context) => void) {
-		this.add(MethodEnum.OPEN, path, handler);
+	openBind(handler: (c: Context) => void, ...paths: string[])  {
+		this.add(handler, MethodEnum.OPEN, paths);
 	}
 
-	closeBind(path: string, handler: (c: Context) => void) {
-		this.add(MethodEnum.CLOSE, path, handler);
+	closeBind(handler: (c: Context) => void, ...paths: string[]) {
+		this.add(handler, MethodEnum.CLOSE, paths);
 	}
 
-	getBind(path: string, handler: (c: Context) => void) {
-		this.add(MethodEnum.GET, path, handler);
+	getBind(handler: (c: Context) => void, ...paths: string[]) {
+		this.add(handler, MethodEnum.GET, paths);
 	}
 
-	putBind(path: string, handler: (c: Context) => void) {
-		this.add(MethodEnum.PUT, path, handler);
+	putBind(handler: (c: Context) => void,...paths: string[]) {
+		this.add(handler, MethodEnum.PUT, paths);
 	}
 
-	postBind(path: string, handler: (c: Context) => void) {
-		this.add(MethodEnum.POST, path, handler);
+	postBind(handler: (c: Context) => void,...paths: string[]) {
+		this.add(handler, MethodEnum.POST, paths);
 	}
 
-	deleteBind(path: string, handler: (c: Context) => void) {
-		this.add(MethodEnum.DELETE, path, handler);
+	deleteBind(handler: (c: Context) => void,...paths: string[]) {
+		this.add(handler, MethodEnum.DELETE, paths);
 	}
 
-	private add(method: MethodEnum, path: string, handler: (c: Context) => void) {
+	private add(handler: (c: Context) => void, method: MethodEnum, paths: string[]) {
+		const path = paths.join('/');
 		let routes = this.routes[method];
 		if (!routes) {
 			routes = [];
@@ -83,36 +84,36 @@ export class Door {
 		});
 	}
 
-	private serializeBinary(method: MethodEnum, path: string, pb: jspb.Message): Uint8Array{
+	private serializeBinary(pb: jspb.Message, method: MethodEnum, paths: string[]): Uint8Array{
 		const e = new Event();
 		e.setMethod(method);
-		e.setPath(path);
+		e.setPath(paths.join('/'));
 		e.setData(pb.serializeBinary());
 		return e.serializeBinary()
 	}
 
-	openBinary(path: string, pb: jspb.Message): Uint8Array {
-		return this.serializeBinary(MethodEnum.OPEN, path, pb)
+	openBinary(pb: jspb.Message, ...paths: string[]): Uint8Array {
+		return this.serializeBinary(pb, MethodEnum.OPEN, paths)
 	}
 
-	closeBinary(path: string, pb: jspb.Message): Uint8Array {
-		return this.serializeBinary(MethodEnum.CLOSE, path, pb)
+	closeBinary(pb: jspb.Message, ...paths: string[]): Uint8Array {
+		return this.serializeBinary(pb, MethodEnum.CLOSE, paths)
 	}
 
-	getBinary(path: string, pb: jspb.Message): Uint8Array {
-		return this.serializeBinary(MethodEnum.GET, path, pb)
+	getBinary(pb: jspb.Message, ...paths: string[]): Uint8Array {
+		return this.serializeBinary(pb, MethodEnum.GET, paths)
 	}
 
-	putBinary(path: string, pb: jspb.Message): Uint8Array {
-		return this.serializeBinary(MethodEnum.PUT, path, pb)
+	postBinary(pb: jspb.Message, ...paths: string[]): Uint8Array {
+		return this.serializeBinary(pb, MethodEnum.POST, paths)
 	}
 
-	postBinary(path: string, pb: jspb.Message): Uint8Array {
-		return this.serializeBinary(MethodEnum.POST, path, pb)
+	putBinary(pb: jspb.Message, ...paths: string[]): Uint8Array {
+		return this.serializeBinary(pb, MethodEnum.PUT, paths)
 	}
 
-	deleteBinary(path: string, pb: jspb.Message): Uint8Array {
-		return this.serializeBinary(MethodEnum.DELETE, path, pb)
+	deleteBinary(pb: jspb.Message, ...paths: string[]): Uint8Array {
+		return this.serializeBinary(pb, MethodEnum.DELETE, paths)
 	}
 }
 

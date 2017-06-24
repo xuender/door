@@ -82,6 +82,6 @@ func html(c echo.Context) error {
 <link href="static/styles.d41d8cd98f00b204e980.bundle.css" rel="stylesheet"/></head>
 <body>
   <app-root></app-root>
-<script type="text/javascript" src="static/inline.893a24a4fa5604695bc9.bundle.js"></script><script type="text/javascript" src="static/polyfills.5ca19fb28cd74641de8d.bundle.js"></script><script type="text/javascript" src="static/vendor.75eee41300e46be93317.bundle.js"></script><script type="text/javascript" src="static/main.d06763307dcbc3a1afa5.bundle.js"></script></body>
+<script type="text/javascript" src="static/inline.dc6cb9009bfb41fbc468.bundle.js"></script><script type="text/javascript" src="static/polyfills.5ca19fb28cd74641de8d.bundle.js"></script><script type="text/javascript" src="static/vendor.75eee41300e46be93317.bundle.js"></script><script type="text/javascript" src="static/main.12822489372e81981fb9.bundle.js"></script></body>
 </html>`)
 }
