@@ -19,19 +19,19 @@ func TestDoor(t *testing.T) {
 			So(len(d.router.routes[MethodEnum_CLOSE]), ShouldEqual, 1)
 		})
 		Convey("GET", func() {
-			d.GET("path", func(c Context) error { return nil })
+			d.GET(func(c Context) error { return nil }, "path")
 			So(len(d.router.routes[MethodEnum_GET]), ShouldEqual, 1)
 		})
 		Convey("POST", func() {
-			d.POST("path", func(c Context) error { return nil })
+			d.POST(func(c Context) error { return nil }, "path")
 			So(len(d.router.routes[MethodEnum_POST]), ShouldEqual, 1)
 		})
 		Convey("PUT", func() {
-			d.PUT("path", func(c Context) error { return nil })
+			d.PUT(func(c Context) error { return nil }, "path")
 			So(len(d.router.routes[MethodEnum_PUT]), ShouldEqual, 1)
 		})
 		Convey("DELETE", func() {
-			d.DELETE("path", func(c Context) error { return nil })
+			d.DELETE(func(c Context) error { return nil }, "path")
 			So(len(d.router.routes[MethodEnum_DELETE]), ShouldEqual, 1)
 		})
 		Convey("Close", func() {

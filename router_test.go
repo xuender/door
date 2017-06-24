@@ -12,7 +12,7 @@ func TestRouter(t *testing.T) {
 		Convey("Add", func() {
 			So(r.Find(MethodEnum_GET, "test"), ShouldEqual, NotFoundHandler)
 			h := func(c Context) error { return nil }
-			r.Add(MethodEnum_GET, "test", h)
+			r.Add(h, MethodEnum_GET, "test")
 			So(r.Find(MethodEnum_GET, "test"), ShouldEqual, h)
 			So(r.Find(MethodEnum_POST, "test"), ShouldEqual, NotFoundHandler)
 		})

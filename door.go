@@ -17,32 +17,32 @@ type Door struct {
 
 // OPEN 设置开启功能.
 func (door *Door) OPEN(h HandlerFunc) {
-	door.router.Add(MethodEnum_OPEN, "", h)
+	door.router.Add(h, MethodEnum_OPEN)
 }
 
 // CLOSE 设置关闭功能.
 func (door *Door) CLOSE(h HandlerFunc) {
-	door.router.Add(MethodEnum_CLOSE, "", h)
+	door.router.Add(h, MethodEnum_CLOSE)
 }
 
 // GET 设置获取功能.
-func (door *Door) GET(path string, h HandlerFunc) {
-	door.router.Add(MethodEnum_GET, path, h)
+func (door *Door) GET(h HandlerFunc, paths ...string) {
+	door.router.Add(h, MethodEnum_GET, paths...)
 }
 
 // POST 设置增加功能.
-func (door *Door) POST(path string, h HandlerFunc) {
-	door.router.Add(MethodEnum_POST, path, h)
+func (door *Door) POST(h HandlerFunc, paths ...string) {
+	door.router.Add(h, MethodEnum_POST, paths...)
 }
 
 // PUT 设置修改功能.
-func (door *Door) PUT(path string, h HandlerFunc) {
-	door.router.Add(MethodEnum_PUT, path, h)
+func (door *Door) PUT(h HandlerFunc, paths ...string) {
+	door.router.Add(h, MethodEnum_PUT, paths...)
 }
 
 // DELETE 设置删除功能.
-func (door *Door) DELETE(path string, h HandlerFunc) {
-	door.router.Add(MethodEnum_DELETE, path, h)
+func (door *Door) DELETE(h HandlerFunc, paths ...string) {
+	door.router.Add(h, MethodEnum_DELETE, paths...)
 }
 
 // WebsocketHandler Websocket handler.

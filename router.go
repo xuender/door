@@ -1,12 +1,15 @@
 package door
 
+import "strings"
+
 // Router 路由器.
 type Router struct {
 	routes map[MethodEnum]map[string]HandlerFunc
 }
 
 // Add 增加路由.
-func (router *Router) Add(method MethodEnum, path string, h HandlerFunc) {
+func (router *Router) Add(h HandlerFunc, method MethodEnum, paths ...string) {
+	path := strings.Join(paths, "/")
 	pathMap, ok := router.routes[method]
 	if !ok {
 		pathMap = make(map[string]HandlerFunc)
@@ -16,7 +19,8 @@ func (router *Router) Add(method MethodEnum, path string, h HandlerFunc) {
 }
 
 // Find 路由查找.
-func (router *Router) Find(method MethodEnum, path string) HandlerFunc {
+func (router *Router) Find(method MethodEnum, paths ...string) HandlerFunc {
+	path := strings.Join(paths, "/")
 	if pathMap, methodOk := router.routes[method]; methodOk {
 		if handlerFunc, pathOk := pathMap[path]; pathOk {
 			return handlerFunc
