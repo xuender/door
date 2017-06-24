@@ -11,19 +11,19 @@ export interface Router {
 export declare class Door {
     private routes;
     constructor();
-    openBind(path: string, handler: (c: Context) => void): void;
-    closeBind(path: string, handler: (c: Context) => void): void;
-    getBind(path: string, handler: (c: Context) => void): void;
-    putBind(path: string, handler: (c: Context) => void): void;
-    postBind(path: string, handler: (c: Context) => void): void;
-    deleteBind(path: string, handler: (c: Context) => void): void;
-    private add(method, path, handler);
+    openBind(handler: (c: Context) => void, ...paths: string[]): void;
+    closeBind(handler: (c: Context) => void, ...paths: string[]): void;
+    getBind(handler: (c: Context) => void, ...paths: string[]): void;
+    putBind(handler: (c: Context) => void, ...paths: string[]): void;
+    postBind(handler: (c: Context) => void, ...paths: string[]): void;
+    deleteBind(handler: (c: Context) => void, ...paths: string[]): void;
+    private add(handler, method, paths);
     onMessage(msg: MessageEvent): void;
-    private serializeBinary(method, path, pb);
-    openBinary(path: string, pb: jspb.Message): Uint8Array;
-    closeBinary(path: string, pb: jspb.Message): Uint8Array;
-    getBinary(path: string, pb: jspb.Message): Uint8Array;
-    putBinary(path: string, pb: jspb.Message): Uint8Array;
-    postBinary(path: string, pb: jspb.Message): Uint8Array;
-    deleteBinary(path: string, pb: jspb.Message): Uint8Array;
+    private serializeBinary(pb, method, paths);
+    openBinary(pb: jspb.Message, ...paths: string[]): Uint8Array;
+    closeBinary(pb: jspb.Message, ...paths: string[]): Uint8Array;
+    getBinary(pb: jspb.Message, ...paths: string[]): Uint8Array;
+    postBinary(pb: jspb.Message, ...paths: string[]): Uint8Array;
+    putBinary(pb: jspb.Message, ...paths: string[]): Uint8Array;
+    deleteBinary(pb: jspb.Message, ...paths: string[]): Uint8Array;
 }
