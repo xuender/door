@@ -98,7 +98,9 @@ var Door = (function () {
         var e = new event_pb_1.Event();
         e.setMethod(method);
         e.setPath(paths.join('/'));
-        e.setData(pb.serializeBinary());
+        if (pb) {
+            e.setData(pb.serializeBinary());
+        }
         return e.serializeBinary();
     };
     Door.prototype.openBinary = function (pb) {
