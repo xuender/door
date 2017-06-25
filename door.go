@@ -15,7 +15,7 @@ type Door struct {
 	upgrader   websocket.Upgrader
 	conns      map[uint32]*websocket.Conn
 	attributes map[uint32]goutils.ChMap
-	filters    map[string][]Executer
+	filters    []Filter
 }
 
 // OPEN 设置开启功能.
@@ -118,12 +118,10 @@ func (door *Door) Close(num uint32) {
 // AddFilter 增加过滤器.
 func (door *Door) AddFilter(filter Executer, paths ...string) {
 	path := strings.Join(paths, "/")
-	filters, ok := door.filters[path]
-	if !ok {
-		filters = make([]Executer, 0)
-	}
-	filters = append(filters, filter)
-	door.filters[path] = filters
+	door.filters = append(door.filters, Filter{
+		path:     path,
+		executer: filter,
+	})
 }
 
 // New Door.
@@ -132,7 +130,7 @@ func New() *Door {
 		router:     NewRouter(),
 		conns:      make(map[uint32]*websocket.Conn, 0),
 		attributes: make(map[uint32]goutils.ChMap, 0),
-		filters:    make(map[string][]Executer, 0),
+		filters:    make([]Filter, 0),
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,

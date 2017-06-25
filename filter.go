@@ -1,5 +1,11 @@
 package door
 
+// Filter 过滤器.
+type Filter struct {
+	path     string
+	executer Executer
+}
+
 // Executer 过滤器接口.
 type Executer interface {
 	Execute(*Context) error

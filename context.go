@@ -20,13 +20,15 @@ type Context struct {
 
 // Execute 执行过滤器.
 func (context *Context) Execute(path string) error {
-	if filters, ok := context.door.filters[path]; ok {
-		for i, filter := range filters {
+	i := 0
+	for _, filter := range context.door.filters {
+		if strings.HasPrefix(path, filter.path) {
 			if i == context.filter {
 				context.filter++
 				context.path = path
-				return filter.Execute(context)
+				return filter.executer.Execute(context)
 			}
+			i++
 		}
 	}
 	return nil
@@ -39,10 +41,13 @@ func (context *Context) Next() error {
 
 // Pass 是否通过过滤器.
 func (context *Context) Pass() bool {
-	if filters, ok := context.door.filters[context.path]; ok {
-		return context.filter == len(filters)
+	i := 0
+	for _, filter := range context.door.filters {
+		if strings.HasPrefix(context.path, filter.path) {
+			i++
+		}
 	}
-	return true
+	return context.filter == i
 }
 
 // Unmarshal 解码proto.

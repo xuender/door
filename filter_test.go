@@ -1,7 +1,6 @@
 package door
 
 import (
-	"fmt"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -16,23 +15,33 @@ func TestFilter(t *testing.T) {
 			num:  1,
 		}
 		Convey("AddFilter", func() {
-			d.AddFilter(&Inline{func(c *Context) error {
-				fmt.Println(1)
-				err := c.Next()
-				fmt.Println(-1)
-				return err
-			}}, "a", "b")
-			d.AddFilter(&Inline{func(c *Context) error {
-				fmt.Println(2)
-				err := c.Next()
-				fmt.Println(-2)
-				return err
-			}}, "a", "b")
-			So(len(d.filters), ShouldEqual, 1)
-		})
-		Convey("Execute", func() {
+			d.AddFilter(&Inline{Handler: func(c *Context) error {
+				c.PutAttribute("f1", true)
+				c.PutAttribute("num", 3)
+				return c.Next()
+			}}, "a")
+			d.AddFilter(&Inline{Handler: func(c *Context) error {
+				c.PutAttribute("f2", true)
+				num, _ := c.GetAttribute("num")
+				c.PutAttribute("num", 8*num.(int))
+				return c.Next()
+			}}, "a")
+			// 忽略的过滤器
+			d.AddFilter(&Inline{Handler: func(c *Context) error {
+				c.PutAttribute("f2", false)
+				num, _ := c.GetAttribute("num")
+				c.PutAttribute("num", 8*num.(int))
+				return c.Next()
+			}}, "a", "c")
+			So(len(d.filters), ShouldEqual, 3)
 			c.Execute("a/b")
 			So(c.Pass(), ShouldEqual, true)
+			f1, _ := c.GetAttribute("f1")
+			f2, _ := c.GetAttribute("f2")
+			num, _ := c.GetAttribute("num")
+			So(f1, ShouldEqual, true)
+			So(f2, ShouldEqual, true)
+			So(num, ShouldEqual, 24)
 		})
 	})
 }
