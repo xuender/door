@@ -1,7 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"./chat"
@@ -17,10 +19,21 @@ func main() {
 	d.OPEN(open)
 	d.POST(send, "send")
 	d.PUT(nick, "nick")
-	d.AddFilter(&Inline{func(c *Context) error {
-		fmt.Println(1)
+	d.AddFilter(&door.Inline{Handler: func(c *door.Context) error {
+		ca := &chat.Chat{}
+		c.Unmarshal(ca)
+		if strings.Contains(ca.Context, "sex") {
+			return errors.New("过滤词")
+		}
 		err := c.Next()
-		fmt.Println(-1)
+		return err
+	}}, "send")
+	d.AddFilter(&door.Inline{Handler: func(c *door.Context) error {
+		ca := &chat.Chat{}
+		c.Unmarshal(ca)
+		ca.Nick = strings.Replace(ca.Nick, "sex", "***", -1)
+		c.Marshal(ca)
+		err := c.Next()
 		return err
 	}}, "send")
 
