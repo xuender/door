@@ -10,9 +10,10 @@ import (
 
 // Door is golang websocket router.
 type Door struct {
-	router   *Router
-	upgrader websocket.Upgrader
-	conns    map[uint32]*websocket.Conn
+	router     *Router
+	upgrader   websocket.Upgrader
+	conns      map[uint32]*websocket.Conn
+	attributes map[uint32]goutils.ChMap
 }
 
 // OPEN 设置开启功能.
@@ -51,14 +52,7 @@ func (door *Door) WebsocketHandler(w http.ResponseWriter, r *http.Request) error
 	goutils.CheckError(err)
 	num := goutils.UniqueUint32()
 	defer door.Close(num)
-	door.conns[num] = conn
-	for _, handlerFunc := range door.router.Finds(MethodEnum_OPEN) {
-		handlerFunc(Context{
-			conn: conn,
-			num:  num,
-			door: door,
-		})
-	}
+	door.open(conn, num)
 	for {
 		messageType, p, err := conn.ReadMessage()
 		if err != nil {
@@ -79,10 +73,21 @@ func (door *Door) WebsocketHandler(w http.ResponseWriter, r *http.Request) error
 	}
 }
 
+func (door *Door) open(conn *websocket.Conn, num uint32) {
+	door.conns[num] = conn
+	door.attributes[num] = goutils.NewChMap()
+	for _, handlerFunc := range door.router.Finds(MethodEnum_OPEN) {
+		handlerFunc(Context{
+			conn: conn,
+			num:  num,
+			door: door,
+		})
+	}
+}
+
 // Close connect by num.
 func (door *Door) Close(num uint32) {
-	if _, ok := door.conns[num]; ok {
-		conn := door.conns[num]
+	if conn, ok := door.conns[num]; ok {
 		for _, handlerFunc := range door.router.Finds(MethodEnum_CLOSE) {
 			handlerFunc(Context{
 				conn: conn,
@@ -95,13 +100,18 @@ func (door *Door) Close(num uint32) {
 			conn.Close()
 		}
 	}
+	if m, ok := door.attributes[num]; ok {
+		m.Close()
+		delete(door.attributes, num)
+	}
 }
 
 // New Door.
 func New() *Door {
 	return &Door{
-		router: NewRouter(),
-		conns:  make(map[uint32]*websocket.Conn, 0),
+		router:     NewRouter(),
+		conns:      make(map[uint32]*websocket.Conn, 0),
+		attributes: make(map[uint32]goutils.ChMap, 0),
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,

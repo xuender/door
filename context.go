@@ -25,6 +25,17 @@ func (context *Context) Num() uint32 {
 	return context.num
 }
 
+// PutAttribute 设置属性.
+func (context *Context) PutAttribute(key string, value interface{}) {
+	context.door.attributes[context.num].Put(key, value)
+}
+
+// GetAttribute 获取属性.
+func (context *Context) GetAttribute(key string) (value interface{}, ok bool) {
+	value, ok = context.door.attributes[context.num].Get(key)
+	return
+}
+
 // Numbers 全部客户端编号.
 func (context *Context) Numbers() (nums []uint32) {
 	nums = make([]uint32, len(context.door.conns))
