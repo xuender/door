@@ -9,15 +9,51 @@ import (
 
 // Context 内容.
 type Context struct {
-	conn *websocket.Conn
-	data []byte
-	num  uint32
-	door *Door
+	Method MethodEnum
+	door   *Door
+	conn   *websocket.Conn
+	data   []byte
+	num    uint32
+	filter int
+	path   string
+}
+
+// Execute 执行过滤器.
+func (context *Context) Execute(path string) error {
+	if filters, ok := context.door.filters[path]; ok {
+		for i, filter := range filters {
+			if i == context.filter {
+				context.filter++
+				context.path = path
+				return filter.Execute(context)
+			}
+		}
+	}
+	return nil
+}
+
+// Next 下一个过滤器
+func (context *Context) Next() error {
+	return context.Execute(context.path)
+}
+
+// Pass 是否通过过滤器.
+func (context *Context) Pass() bool {
+	if filters, ok := context.door.filters[context.path]; ok {
+		return context.filter == len(filters)
+	}
+	return true
 }
 
 // Unmarshal 解码proto.
 func (context *Context) Unmarshal(pb proto.Message) error {
 	return proto.Unmarshal(context.data, pb)
+}
+
+// Marshal 编码proto.
+func (context *Context) Marshal(pb proto.Message) (err error) {
+	context.data, err = proto.Marshal(pb)
+	return
 }
 
 // Num 当前Context的编号.
@@ -48,22 +84,22 @@ func (context *Context) Numbers() (nums []uint32) {
 }
 
 // Send 发送对象.
-func (context *Context) Send(num uint32, pb proto.Message, method MethodEnum, path ...string) error {
+func (context *Context) Send(num uint32, pb proto.Message, method MethodEnum, paths ...string) error {
 	if conn, ok := context.door.conns[num]; ok {
-		return context.send(num, conn, pb, method, path...)
+		return context.send(num, conn, pb, method, paths...)
 	}
 	return ErrorNotNum{Num: num}
 }
 
 // Revert 回复.
-func (context *Context) Revert(pb proto.Message, method MethodEnum, path ...string) error {
-	return context.send(context.num, context.conn, pb, method, path...)
+func (context *Context) Revert(pb proto.Message, method MethodEnum, paths ...string) error {
+	return context.send(context.num, context.conn, pb, method, paths...)
 }
 
-func (context *Context) send(num uint32, conn *websocket.Conn, pb proto.Message, method MethodEnum, path ...string) error {
+func (context *Context) send(num uint32, conn *websocket.Conn, pb proto.Message, method MethodEnum, paths ...string) error {
 	event := &Event{
 		Method: method,
-		Path:   strings.Join(path, "/"),
+		Path:   strings.Join(paths, "/"),
 	}
 	if pb != nil {
 		pbBytes, pbErr := proto.Marshal(pb)

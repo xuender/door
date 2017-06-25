@@ -15,8 +15,14 @@ func main() {
 	chats = make([]*chat.Chat, 0)
 	d := door.New()
 	d.OPEN(open)
-	d.POST("send", send)
-	d.PUT("nick", nick)
+	d.POST(send, "send")
+	d.PUT(nick, "nick")
+	d.AddFilter(&Inline{func(c *Context) error {
+		fmt.Println(1)
+		err := c.Next()
+		fmt.Println(-1)
+		return err
+	}}, "send")
 
 	e := echo.New()
 	e.GET("/ws", func(c echo.Context) error {

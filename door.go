@@ -2,6 +2,7 @@ package door
 
 import (
 	"net/http"
+	"strings"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/gorilla/websocket"
@@ -14,6 +15,7 @@ type Door struct {
 	upgrader   websocket.Upgrader
 	conns      map[uint32]*websocket.Conn
 	attributes map[uint32]goutils.ChMap
+	filters    map[string][]Executer
 }
 
 // OPEN 设置开启功能.
@@ -63,12 +65,17 @@ func (door *Door) WebsocketHandler(w http.ResponseWriter, r *http.Request) error
 			if err = proto.Unmarshal(p, event); err != nil {
 				continue
 			}
-			door.router.Find(MethodEnum(event.Method), event.Path)(Context{
-				conn: conn,
-				data: event.Data,
-				num:  num,
-				door: door,
-			})
+			context := Context{
+				Method: event.Method,
+				conn:   conn,
+				data:   event.Data,
+				num:    num,
+				door:   door,
+			}
+			context.Execute(event.Path)
+			if context.Pass() {
+				door.router.Find(MethodEnum(event.Method), event.Path)(context)
+			}
 		}
 	}
 }
@@ -78,9 +85,10 @@ func (door *Door) open(conn *websocket.Conn, num uint32) {
 	door.attributes[num] = goutils.NewChMap()
 	for _, handlerFunc := range door.router.Finds(MethodEnum_OPEN) {
 		handlerFunc(Context{
-			conn: conn,
-			num:  num,
-			door: door,
+			Method: MethodEnum_OPEN,
+			conn:   conn,
+			num:    num,
+			door:   door,
 		})
 	}
 }
@@ -90,9 +98,10 @@ func (door *Door) Close(num uint32) {
 	if conn, ok := door.conns[num]; ok {
 		for _, handlerFunc := range door.router.Finds(MethodEnum_CLOSE) {
 			handlerFunc(Context{
-				conn: conn,
-				num:  num,
-				door: door,
+				Method: MethodEnum_CLOSE,
+				conn:   conn,
+				num:    num,
+				door:   door,
 			})
 		}
 		delete(door.conns, num)
@@ -106,12 +115,24 @@ func (door *Door) Close(num uint32) {
 	}
 }
 
+// AddFilter 增加过滤器.
+func (door *Door) AddFilter(filter Executer, paths ...string) {
+	path := strings.Join(paths, "/")
+	filters, ok := door.filters[path]
+	if !ok {
+		filters = make([]Executer, 0)
+	}
+	filters = append(filters, filter)
+	door.filters[path] = filters
+}
+
 // New Door.
 func New() *Door {
 	return &Door{
 		router:     NewRouter(),
 		conns:      make(map[uint32]*websocket.Conn, 0),
 		attributes: make(map[uint32]goutils.ChMap, 0),
+		filters:    make(map[string][]Executer, 0),
 		upgrader: websocket.Upgrader{
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
