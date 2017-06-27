@@ -77,6 +77,11 @@ func (context *Context) GetAttribute(key string) (value interface{}, ok bool) {
 	return
 }
 
+// DelAttribut 删除属性.
+func (context *Context) DelAttribut(key string) {
+	context.door.attributes[context.num].Remove(key)
+}
+
 // Numbers 全部客户端编号.
 func (context *Context) Numbers() (nums []uint32) {
 	nums = make([]uint32, len(context.door.conns))
